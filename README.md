@@ -10,7 +10,7 @@ Demo: [samypesse.github.io/draft-js-code/](http://samypesse.github.io/draft-js-c
 ### Features
 
 - [x] Insert indent when pressing Tab
-- [ ] Insert new line in block with right indentation when pressing Enter
+- [x] Insert new line in block with right indentation when pressing Enter
 - [ ] Remove indentation when pressing Return
 
 ### Installation
