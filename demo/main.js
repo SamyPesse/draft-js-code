@@ -16,6 +16,11 @@ const {
 
 const {Map, List} = Immutable;
 
+
+var FIRST_CODE = 'var message = "Hello World"\n    + "with four spaces indentation"\n\nconsole.log(message);';
+var SECOND_CODE = 'var message = "Hello World"\n  + "with 2 spaces indentation"\n\nconsole.log(message);';
+
+
 class PrismEditorExample extends React.Component {
     constructor(props) {
         super(props);
@@ -26,7 +31,7 @@ class PrismEditorExample extends React.Component {
             blocks: [
                 {
                     type: 'header-one',
-                    text: 'Demo for draft-js-prism'
+                    text: 'Demo for draft-js-code'
                 },
                 {
                     type: 'unstyled',
@@ -34,7 +39,15 @@ class PrismEditorExample extends React.Component {
                 },
                 {
                     type: 'code-block',
-                    text: 'var message = "This is awesome!";'
+                    text: FIRST_CODE
+                },
+                {
+                    type: 'unstyled',
+                    text: 'And this is a code block with 2 spaces indentation'
+                },
+                {
+                    type: 'code-block',
+                    text: SECOND_CODE
                 }
             ]
         })

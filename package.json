@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/SamyPesse/draft-js-code#readme",
   "dependencies": {
+    "detect-indent": "^4.0.0",
     "draft-js": "^0.7.0",
     "immutable": "^3.8.1"
   },
