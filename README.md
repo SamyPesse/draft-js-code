@@ -9,10 +9,10 @@ Demo: [samypesse.github.io/draft-js-code/](http://samypesse.github.io/draft-js-c
 
 ### Features
 
-- [x] Insert indent when pressing Tab
-- [x] Insert new line in block with right indentation when pressing Enter
-- [x] Remove indentation when pressing Delete
-- [ ] Pressing enter in last line, split the block
+- [x] Insert indent when pressing <kbd>TAB</kbd>
+- [x] Insert new line in block with right indentation when pressing <kbd>ENTER</kbd>
+- [x] Remove indentation when pressing <kbd>DELETE</kbd>
+- [x] Pressing <kbd>TAB</kbd> on last line, split the block
 
 ### Installation
 
