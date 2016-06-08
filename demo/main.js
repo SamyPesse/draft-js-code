@@ -87,7 +87,12 @@ class PrismEditorExample extends React.Component {
     }
 
     _keyBindingFn(e) {
-        var command = CodeUtils.getKeyBinding(e);
+        let editorState = this.state.editorState;
+        let command;
+
+        if (CodeUtils.hasSelectionInBlock(editorState)) {
+            command = CodeUtils.getKeyBinding(e);
+        }
         if (command) {
             return command;
         }
@@ -114,14 +119,26 @@ class PrismEditorExample extends React.Component {
     }
 
     _onTab(e) {
+        let editorState = this.state.editorState;
+
+        if (!CodeUtils.hasSelectionInBlock(editorState)) {
+            return;
+        }
+
         this.onChange(
-            CodeUtils.handleTab(e, this.state.editorState)
+            CodeUtils.handleTab(e, editorState)
         )
     }
 
     _onReturn(e) {
+        let editorState = this.state.editorState;
+
+        if (!CodeUtils.hasSelectionInBlock(editorState)) {
+            return;
+        }
+
         this.onChange(
-            CodeUtils.handleReturn(e, this.state.editorState)
+            CodeUtils.handleReturn(e, editorState)
         )
         return true;
     }

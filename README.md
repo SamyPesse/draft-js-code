@@ -24,7 +24,7 @@ $ npm install draft-js-code
 
 ##### `CodeUtils.hasSelectionInBlock(editorState)`
 
-Returns true if user is editing a code block.
+Returns true if user is editing a code block. You should call this method to encapsulate all other methods when limiting code edition behaviour to `code-block`.
 
 ##### `CodeUtils.handleKeyCommand(editorState, command)`
 
@@ -79,7 +79,12 @@ var Editor = React.createClass({
     },
 
     keyBindingFn: function(e) {
-        var command = CodeUtils.getKeyBinding(e);
+        var editorState = this.state.editorState;
+        var command;
+
+        if (CodeUtils.hasSelectionInBlock(editorState)) {
+            command = CodeUtils.getKeyBinding(e);
+        }
         if (command) {
             return command;
         }
@@ -88,15 +93,27 @@ var Editor = React.createClass({
     },
 
     handleReturn: function(e) {
+        var editorState = this.state.editorState;
+
+        if (!CodeUtils.hasSelectionInBlock(editorState)) {
+            return;
+        }
+
         this.onChange(
-            CodeUtils.handleReturn(e, this.state.editorState)
+            CodeUtils.handleReturn(e, editorState)
         );
         return true;
     },
 
     handleTab: function(e) {
+        var editorState = this.state.editorState;
+
+        if (!CodeUtils.hasSelectionInBlock(editorState)) {
+            return;
+        }
+
         this.onChange(
-            CodeUtils.handleTab(e, this.state.editorState)
+            CodeUtils.handleTab(e, editorState)
         );
     },
 
