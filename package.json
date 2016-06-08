@@ -28,6 +28,7 @@
     "detect-indent": "^4.0.0",
     "detect-newline": "^2.1.0",
     "draft-js": "^0.7.0",
+    "ends-with": "^0.2.0",
     "immutable": "^3.8.1"
   },
   "devDependencies": {

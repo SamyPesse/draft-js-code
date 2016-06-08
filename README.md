@@ -11,7 +11,8 @@ Demo: [samypesse.github.io/draft-js-code/](http://samypesse.github.io/draft-js-c
 
 - [x] Insert indent when pressing Tab
 - [x] Insert new line in block with right indentation when pressing Enter
-- [ ] Remove indentation when pressing Return
+- [x] Remove indentation when pressing Delete
+- [ ] Pressing enter in last line, split the block
 
 ### Installation
 
