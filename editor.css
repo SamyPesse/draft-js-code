@@ -36,11 +36,12 @@
   padding: 10px 20px;
 }
 
-.RichEditor-editor .public-DraftStyleDefault-pre {
+.RichEditor-editor .public-DraftStyleDefault-pre > pre {
   background-color: rgba(0, 0, 0, 0.05);
   font-family: 'Inconsolata', 'Menlo', 'Consolas', monospace;
   font-size: 16px;
   padding: 20px;
+  margin-bottom: 20px;
 }
 
 .RichEditor-controls {
