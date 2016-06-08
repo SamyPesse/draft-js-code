@@ -17,7 +17,7 @@ Demo: [samypesse.github.io/draft-js-code/](http://samypesse.github.io/draft-js-c
 ### Installation
 
 ```
-$ npm install draft-js-code
+$ npm install draft-js-code --save
 ```
 
 ### API
@@ -45,7 +45,7 @@ Handle user pressing return, to insert a new line inside the code block, it retu
 var React = require('react');
 var ReactDOM = require('react-dom');
 var Draft = require('draft-js');
-var CodeUtils = require('draft-js-code')();
+var CodeUtils = require('draft-js-code');
 
 var Editor = React.createClass({
     getInitialState: function() {
