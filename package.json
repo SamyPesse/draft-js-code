@@ -9,7 +9,8 @@
     "deploy": "npm run build; gh-pages -d ./demo",
     "watch": "watch 'npm run build' ./lib",
     "serve": "http-server -p 9090 demo/",
-    "start": "npm run build; parallelshell 'npm run serve -s' 'npm run watch -s'"
+    "start": "npm run build; parallelshell 'npm run serve -s' 'npm run watch -s'",
+    "postpublish": "npm run deploy"
   },
   "repository": {
     "type": "git",
