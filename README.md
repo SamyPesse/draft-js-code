@@ -13,6 +13,7 @@ Demo: [samypesse.github.io/draft-js-code/](http://samypesse.github.io/draft-js-c
 - [x] Insert new line in block with right indentation when pressing <kbd>ENTER</kbd>
 - [x] Remove indentation when pressing <kbd>DELETE</kbd>
 - [x] Pressing <kbd>TAB</kbd> on last line, split the block
+- [x] Exit code blocks when pressing <kbd>ENTER + Command</kbd>
 
 ### Installation
 
