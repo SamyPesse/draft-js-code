@@ -35,7 +35,7 @@ class PrismEditorExample extends React.Component {
                 },
                 {
                     type: 'unstyled',
-                    text: 'Type some JavaScript below:'
+                    text: 'Type some JavaScript below, Use "Command+Return" (or "Ctrl+Return" on Windows) to split/exit a code blocks:'
                 },
                 {
                     type: 'code-block',
