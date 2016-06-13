@@ -45,7 +45,7 @@ var PrismEditorExample = function (_React$Component) {
                 text: 'Demo for draft-js-code'
             }, {
                 type: 'unstyled',
-                text: 'Type some JavaScript below:'
+                text: 'Type some JavaScript below, Use "Command+Return" (or "Ctrl+Return" on Windows) to split/exit a code blocks:'
             }, {
                 type: 'code-block',
                 text: FIRST_CODE
@@ -473,7 +473,7 @@ var Draft = require('draft-js');
 var insertNewLine = require('./insertNewLine');
 
 /**
- *  We split code blocks only if we are on the last line
+ *  We split code blocks only if user pressed Cmd+Enter
  *
  * @param {SyntheticKeyboardEvent} event
  * @param {Draft.EditorState} editorState
@@ -483,19 +483,8 @@ function handleReturn(e, editorState) {
     var contentState = editorState.getCurrentContent();
     var selection = editorState.getSelection();
 
-    // Split block only if classic return
-    if (selection.isCollapsed() && !e.shiftKey) {
-        var startKey = selection.getStartKey();
-        var startOffset = selection.getStartOffset();
-        var currentBlock = contentState.getBlockForKey(startKey);
-        var blockText = currentBlock.getText();
-
-        // Are we at the end of the block
-        if (startOffset !== blockText.length) {
-            return insertNewLine(editorState);
-        }
-
-        // As usual, split blocks
+    // Command+Return: As usual, split blocks
+    if (selection.isCollapsed() && Draft.KeyBindingUtil.hasCommandModifier(e)) {
         var newContentState = Draft.Modifier.splitBlock(contentState, selection);
         return Draft.EditorState.push(editorState, newContentState, 'split-block');
     }
@@ -615,7 +604,9 @@ function insertNewLine(editorState) {
         newContentState = Draft.Modifier.replaceText(contentState, selection, newLine);
     }
 
-    return Draft.EditorState.push(editorState, newContentState, 'insert-characters');
+    var newEditorState = Draft.EditorState.push(editorState, newContentState, 'insert-characters');
+
+    return Draft.EditorState.forceSelection(newEditorState, newContentState.getSelectionAfter());
 }
 
 module.exports = insertNewLine;
@@ -667,7 +658,6 @@ function removeIndent(editorState) {
     }
 
     // Remove indent
-
     var beforeIndentOffset = startOffset - indent.length;
     var rangeToRemove = selection.merge({
         focusKey: startKey,
@@ -680,7 +670,7 @@ function removeIndent(editorState) {
     var newContentState = Draft.Modifier.removeRange(contentState, rangeToRemove, 'backward');
     var newEditorState = Draft.EditorState.push(editorState, newContentState, 'remove-range');
 
-    return newEditorState;
+    return Draft.EditorState.forceSelection(newEditorState, newContentState.getSelectionAfter());
 }
 
 module.exports = removeIndent;
