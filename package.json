@@ -49,6 +49,6 @@
     "watch": "^0.18.0"
   },
   "peerDependencies": {
-    "draft-js": "^0.7.0"
+    "draft-js": "^0.9.1"
   }
 }
