@@ -62,6 +62,7 @@ var Editor = React.createClass({
     },
 
     handleKeyCommand: function(command) {
+        var editorState = this.state.editorState;
         var newState;
 
         if (CodeUtils.hasSelectionInBlock(editorState)) {
