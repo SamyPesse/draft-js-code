@@ -143,6 +143,19 @@ class PrismEditorExample extends React.Component {
         return true;
     }
 
+    handlePastedText(text, html) {
+        let editorState = this.state.editorState;
+        if (!CodeUtils.hasSelectionInBlock(editorState)) {
+            return;
+        }
+
+        this.onChange(
+            CodeUtils.handlePastedText(editorState, text, html)
+        )
+        return true;
+
+    }
+
     render() {
         const {editorState} = this.state;
 
@@ -172,6 +185,7 @@ class PrismEditorExample extends React.Component {
                         customStyleMap={styleMap}
                         editorState={editorState}
                         handleKeyCommand={this.handleKeyCommand}
+                        handlePastedText={this.handlePastedText}
                         keyBindingFn={this.keyBindingFn}
                         onChange={this.onChange}
                         placeholder="Tell a story..."
