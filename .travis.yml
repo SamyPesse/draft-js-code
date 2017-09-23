@@ -2,6 +2,7 @@ language: node_js
 node_js:
   - "stable"
 script:
+  - npm run prettier -- --list-different 'lib/**/*.js'
   - npm run test
   - npm run coveralls
 notifications:

@@ -6,6 +6,8 @@
   "scripts": {
     "test": "jest --coverage",
     "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "precommit": "lint-staged",
+    "prettier": "prettier",
     "build": "browserify -t [ babelify --presets [ es2015 react ] ] ./demo/main.js > ./demo/dist.js; cp ./node_modules/prismjs/themes/prism.css ./demo/prism.css; cp ./node_modules/draft-js/dist/Draft.css ./demo/draft.css",
     "deploy": "npm run build; gh-pages -d ./demo",
     "watch": "watch 'npm run build' ./lib",
@@ -20,6 +22,12 @@
   "keywords": [
     "draft-js"
   ],
+  "lint-staged": {
+    "*.js": [
+      "npm run prettier -- --write",
+      "git add"
+    ]
+  },
   "author": "Samy Pesse <samypesse@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
@@ -43,8 +51,11 @@
     "eslint": "^2.11.1",
     "gh-pages": "^0.11.0",
     "http-server": "^0.9.0",
+    "husky": "^0.14.3",
     "jest": "^21.1.0",
+    "lint-staged": "^4.2.2",
     "parallelshell": "2.0.0",
+    "prettier": "^1.7.0",
     "prismjs": "^1.8.1",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
