@@ -1,7 +1,7 @@
 # draft-js-code
 
 [![NPM version](https://badge.fury.io/js/draft-js-code.svg)](http://badge.fury.io/js/draft-js-code)
-[![Build Status](https://travis-ci.org/SamyPesse/draft-js-code.svg?branch=master)](https://travis-ci.org/SamyPesse/draft-js-code)
+[![Coverage Status](https://coveralls.io/repos/github/SamyPesse/draft-js-code/badge.svg?branch=master)](https://coveralls.io/github/SamyPesse/draft-js-code?branch=master)
 
 `draft-js-code` is a collection of utilities to make code blocks edition easy in DraftJS. It works well with [draft-js-prism](https://github.com/SamyPesse/draft-js-prism).
 
