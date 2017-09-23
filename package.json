@@ -45,6 +45,7 @@
     "parallelshell": "2.0.0",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
+    "prismjs": "^1.8.1",
     "watch": "^0.18.0"
   },
   "peerDependencies": {
