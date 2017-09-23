@@ -4,7 +4,8 @@
   "description": "Collection of utilities to make code blocks edition easy in DraftJS",
   "main": "./lib/index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
     "build": "browserify -t [ babelify --presets [ es2015 react ] ] ./demo/main.js > ./demo/dist.js; cp ./node_modules/prismjs/themes/prism.css ./demo/prism.css; cp ./node_modules/draft-js/dist/Draft.css ./demo/draft.css",
     "deploy": "npm run build; gh-pages -d ./demo",
     "watch": "watch 'npm run build' ./lib",
@@ -36,6 +37,7 @@
     "babel-preset-react": "^6.5.0",
     "babelify": "^7.2.0",
     "browserify": "^13.0.0",
+    "coveralls": "^2.13.1",
     "draft-js": "0.x",
     "draft-js-prism": "^1.0.2",
     "eslint": "^2.11.1",
@@ -43,9 +45,9 @@
     "http-server": "^0.9.0",
     "jest": "^21.1.0",
     "parallelshell": "2.0.0",
+    "prismjs": "^1.8.1",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
-    "prismjs": "^1.8.1",
     "watch": "^0.18.0"
   },
   "peerDependencies": {
