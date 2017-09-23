@@ -5,6 +5,7 @@
   "main": "./lib/index.js",
   "scripts": {
     "test": "jest --coverage",
+    "coveralls": "coveralls",
     "build": "browserify -t [ babelify --presets [ es2015 react ] ] ./demo/main.js > ./demo/dist.js; cp ./node_modules/prismjs/themes/prism.css ./demo/prism.css; cp ./node_modules/draft-js/dist/Draft.css ./demo/draft.css",
     "deploy": "npm run build; gh-pages -d ./demo",
     "watch": "watch 'npm run build' ./lib",
