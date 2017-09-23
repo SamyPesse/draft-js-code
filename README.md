@@ -3,17 +3,20 @@
 [![NPM version](https://badge.fury.io/js/draft-js-code.svg)](http://badge.fury.io/js/draft-js-code)
 [![Coverage Status](https://coveralls.io/repos/github/SamyPesse/draft-js-code/badge.svg?branch=master)](https://coveralls.io/github/SamyPesse/draft-js-code?branch=master)
 
-`draft-js-code` is a collection of utilities to make code blocks edition easy in DraftJS. It works well with [draft-js-prism](https://github.com/SamyPesse/draft-js-prism).
+`draft-js-code` is a collection of low-level utilities to make code block editing in DraftJS editors nicer.
+
+<!-- If you're using `draft-js-plugins`, check out the [`draft-js-code-plugin`](https://github.com/withspectrum/draft-js-code-plugin) wrapper around this library. -->
+
+It works well with [`draft-js-prism`](https://github.com/SamyPesse/draft-js-prism) or [`draft-js-prism-plugin`](https://github.com/withspectrum/draft-js-prism-plugin).
 
 Demo: [samypesse.github.io/draft-js-code/](http://samypesse.github.io/draft-js-code/)
 
 ### Features
 
-- [x] Insert indent when pressing <kbd>TAB</kbd>
-- [x] Insert new line in block with right indentation when pressing <kbd>ENTER</kbd>
-- [x] Remove indentation when pressing <kbd>DELETE</kbd>
-- [x] Pressing <kbd>TAB</kbd> on last line, split the block
-- [x] Exit code blocks when pressing <kbd>ENTER + Command</kbd>
+- [x] Indent with <kbd>TAB</kbd>
+- [x] Insert new line with correct indentation with <kbd>ENTER</kbd>
+- [x] Remove indentation with <kbd>DELETE</kbd>
+- [x] Split the code block with <kbd>Command/Control + Enter</kbd>
 
 ### Installation
 
@@ -43,91 +46,79 @@ Handle user pressing return, to insert a new line inside the code block, it retu
 ### Usage
 
 ```js
-var React = require('react');
-var ReactDOM = require('react-dom');
-var Draft = require('draft-js');
-var CodeUtils = require('draft-js-code');
+import React from 'react';
+import Draft from 'draft-js';
+import CodeUtils from 'draft-js-code';
 
-var Editor = React.createClass({
-    getInitialState: function() {
-        return {
-            editorState: Draft.EditorState.createEmpty()
-        };
-    },
+class Editor extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      editorState: Draft.EditorState.createEmpty()
+    };
+  }
 
-    onChange: function(editorState) {
-        this.setState({
-            editorState: editorState
-        });
-    },
+  onChange = (editorState) => {
+    this.setState({
+      editorState
+    })
+  }
 
-    handleKeyCommand: function(command) {
-        var editorState = this.state.editorState;
-        var newState;
+  handleKeyCommand = (command) => {
+    const { editorState } = this.state;
+    let newState;
 
-        if (CodeUtils.hasSelectionInBlock(editorState)) {
-            newState = CodeUtils.handleKeyCommand(editorState, command);
-        }
-
-        if (!newState) {
-            newState = Draft.RichUtils.handleKeyCommand(editorState, command);
-        }
-
-        if (newState) {
-            this.onChange(newState);
-            return true;
-        }
-        return false;
-    },
-
-    keyBindingFn: function(e) {
-        var editorState = this.state.editorState;
-        var command;
-
-        if (CodeUtils.hasSelectionInBlock(editorState)) {
-            command = CodeUtils.getKeyBinding(e);
-        }
-        if (command) {
-            return command;
-        }
-
-        return Draft.getDefaultKeyBinding(e);
-    },
-
-    handleReturn: function(e) {
-        var editorState = this.state.editorState;
-
-        if (!CodeUtils.hasSelectionInBlock(editorState)) {
-            return;
-        }
-
-        this.onChange(
-            CodeUtils.handleReturn(e, editorState)
-        );
-        return true;
-    },
-
-    handleTab: function(e) {
-        var editorState = this.state.editorState;
-
-        if (!CodeUtils.hasSelectionInBlock(editorState)) {
-            return;
-        }
-
-        this.onChange(
-            CodeUtils.handleTab(e, editorState)
-        );
-    },
-
-    render: function() {
-        return <Draft.Editor
-            editorState={this.state.editorState}
-            onChange={this.onChange}
-            keyBindingFn={this.keyBindingFn}
-            handleKeyCommand={this.handleKeyCommand}
-            handleReturn={this.handleReturn}
-            onTab={this.handleTab}
-        />;
+    if (CodeUtils.hasSelectionInBlock(editorState)) {
+      newState = CodeUtils.handleKeyCommand(editorState, command);
     }
-});
+
+    if (!newState) {
+      newState = RichUtils.handleKeyCommand(editorState, command);
+    }
+
+    if (newState) {
+      this.onChange(newState);
+      return 'handled';
+    }
+    return 'not-handled';
+  }
+
+  keyBindingFn = (evt) => {
+    const { editorState } = this.state;
+    if (!CodeUtils.hasSelectionInBlock(editorState)) return Draft.getDefaultKeyBinding(e);
+
+    const command = CodeUtils.getKeyBinding(evt);
+
+    return command || Draft.getDefaultKeyBinding(e);
+  }
+
+  handleReturn = (evt) => {
+    const { editorState } = this.state;
+    if (!CodeUtils.hasSelectionInBlock(editorState)) return 'not-handled';
+
+    this.onChange(CodeUtils.handleReturn(evt, editorState));
+    return 'handled';
+  }
+
+  handleTab = (evt) => {
+    const { editorState } = this.state;
+    if (!CodeUtils.hasSelectionInBlock(editorState)) return 'not-handled';
+
+    this.onChange(CodeUtils.handleTab(evt, editorState));
+    return 'handled';
+  }
+
+  render() {
+    return (
+      <Draft.Editor
+        editorState={this.state.editorState}
+        onChange={this.onChange}
+        keyBindingFn={this.keyBindingFn}
+        handleKeyCommand={this.handleKeyCommand}
+        handleReturn={this.handleReturn}
+        onTab={this.handleTab}
+      />
+    );
+  }
+}
 ```
