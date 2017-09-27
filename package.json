@@ -1,6 +1,6 @@
 {
   "name": "draft-js-code",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Collection of utilities to make code blocks edition easy in DraftJS",
   "main": "./lib/index.js",
   "scripts": {
