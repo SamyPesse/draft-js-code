@@ -85,11 +85,11 @@ class Editor extends React.Component {
 
   keyBindingFn = (evt) => {
     const { editorState } = this.state;
-    if (!CodeUtils.hasSelectionInBlock(editorState)) return Draft.getDefaultKeyBinding(e);
+    if (!CodeUtils.hasSelectionInBlock(editorState)) return Draft.getDefaultKeyBinding(evt);
 
     const command = CodeUtils.getKeyBinding(evt);
 
-    return command || Draft.getDefaultKeyBinding(e);
+    return command || Draft.getDefaultKeyBinding(evt);
   }
 
   handleReturn = (evt) => {
