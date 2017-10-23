@@ -145,7 +145,7 @@ var PrismEditorExample = function (_React$Component) {
         return;
       }
 
-      this.onChange(CodeUtils.handleTab(e, editorState));
+      this.onChange(CodeUtils.onTab(e, editorState));
     }
   }, {
     key: '_onReturn',
@@ -309,7 +309,7 @@ var InlineStyleControls = function InlineStyleControls(props) {
 
 ReactDOM.render(React.createElement(PrismEditorExample, null), document.getElementById('target'));
 
-},{"../":7,"draft-js":30,"draft-js-prism":18,"immutable":176,"react":338,"react-dom":186}],2:[function(require,module,exports){
+},{"../":6,"draft-js":30,"draft-js-prism":18,"immutable":176,"react":338,"react-dom":186}],2:[function(require,module,exports){
 "use strict";
 
 /**
@@ -359,55 +359,12 @@ function handleReturn(e, editorState) {
   var contentState = editorState.getCurrentContent();
   var selection = editorState.getSelection();
 
-  // Command+Return: As usual, split blocks
-  if (selection.isCollapsed() && Draft.KeyBindingUtil.hasCommandModifier(e)) {
-    var newContentState = Draft.Modifier.splitBlock(contentState, selection);
-    return Draft.EditorState.push(editorState, newContentState, 'split-block');
-  }
-
   return insertNewLine(editorState);
 }
 
 module.exports = handleReturn;
 
 },{"./utils/insertNewLine":13,"draft-js":30}],5:[function(require,module,exports){
-'use strict';
-
-var Draft = require('draft-js');
-var getIndentation = require('./utils/getIndentation');
-
-// TODO: tab should complete indentation instead of just inserting one
-
-/**
- * Handle pressing tab in the editor
- *
- * @param {SyntheticKeyboardEvent} event
- * @param {Draft.EditorState} editorState
- * @return {Draft.EditorState}
- */
-function handleTab(e, editorState) {
-  e.preventDefault();
-
-  var contentState = editorState.getCurrentContent();
-  var selection = editorState.getSelection();
-  var startKey = selection.getStartKey();
-  var currentBlock = contentState.getBlockForKey(startKey);
-
-  var indentation = getIndentation(currentBlock.getText());
-  var newContentState;
-
-  if (selection.isCollapsed()) {
-    newContentState = Draft.Modifier.insertText(contentState, selection, indentation);
-  } else {
-    newContentState = Draft.Modifier.replaceText(contentState, selection, indentation);
-  }
-
-  return Draft.EditorState.push(editorState, newContentState, 'insert-characters');
-}
-
-module.exports = handleTab;
-
-},{"./utils/getIndentation":9,"draft-js":30}],6:[function(require,module,exports){
 'use strict';
 
 /**
@@ -427,7 +384,7 @@ function hasSelectionInBlock(editorState) {
 
 module.exports = hasSelectionInBlock;
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -435,10 +392,47 @@ module.exports = {
   hasSelectionInBlock: require('./hasSelectionInBlock'),
   handleKeyCommand: require('./handleKeyCommand'),
   handleReturn: require('./handleReturn'),
-  handleTab: require('./handleTab')
+  onTab: require('./onTab')
 };
 
-},{"./getKeyBinding":2,"./handleKeyCommand":3,"./handleReturn":4,"./handleTab":5,"./hasSelectionInBlock":6}],8:[function(require,module,exports){
+},{"./getKeyBinding":2,"./handleKeyCommand":3,"./handleReturn":4,"./hasSelectionInBlock":5,"./onTab":7}],7:[function(require,module,exports){
+'use strict';
+
+var Draft = require('draft-js');
+var getIndentation = require('./utils/getIndentation');
+
+// TODO: tab should complete indentation instead of just inserting one
+
+/**
+ * Handle pressing tab in the editor
+ *
+ * @param {SyntheticKeyboardEvent} event
+ * @param {Draft.EditorState} editorState
+ * @return {Draft.EditorState}
+ */
+function onTab(e, editorState) {
+  e.preventDefault();
+
+  var contentState = editorState.getCurrentContent();
+  var selection = editorState.getSelection();
+  var startKey = selection.getStartKey();
+  var currentBlock = contentState.getBlockForKey(startKey);
+
+  var indentation = getIndentation(currentBlock.getText());
+  var newContentState;
+
+  if (selection.isCollapsed()) {
+    newContentState = Draft.Modifier.insertText(contentState, selection, indentation);
+  } else {
+    newContentState = Draft.Modifier.replaceText(contentState, selection, indentation);
+  }
+
+  return Draft.EditorState.push(editorState, newContentState, 'insert-characters');
+}
+
+module.exports = onTab;
+
+},{"./utils/getIndentation":9,"draft-js":30}],8:[function(require,module,exports){
 'use strict';
 
 var detectIndent = require('detect-indent');
@@ -1716,15 +1710,16 @@ function PrismDecorator(options) {
  * @return {List<String>}
  */
 PrismDecorator.prototype.getDecorations = function(block) {
-    var tokens, token, tokenId, resultId, offset = 0;
+    var tokens, token, tokenId, resultId, offset = 0, tokenCount = 0;
     var filter = this.options.get('filter');
     var getSyntax = this.options.get('getSyntax');
     var blockKey = block.getKey();
     var blockText = block.getText();
     var decorations = Array(blockText.length).fill(null);
     var Prism = this.options.get('prism');
+    var highlighted = this.highlighted;
 
-    this.highlighted[blockKey] = {};
+    highlighted[blockKey] = {};
 
     if (!filter(block)) {
         return Immutable.List(decorations);
@@ -1741,20 +1736,29 @@ PrismDecorator.prototype.getDecorations = function(block) {
     var grammar = Prism.languages[syntax];
     tokens = Prism.tokenize(blockText, grammar);
 
+
+    function processToken(decorations, token, offset) {
+      if (typeof token === 'string') {
+        return
+      }
+      //First write this tokens full length
+      tokenId = 'tok'+(tokenCount++);
+      resultId = blockKey + '-' + tokenId;
+      highlighted[blockKey][tokenId] = token;
+      occupySlice(decorations, offset, offset + token.length, resultId);
+      //Then recurse through the child tokens, overwriting the parent
+      var childOffset = offset;
+      for (var i =0; i < token.content.length; i++) {
+        var childToken = token.content[i];
+        processToken(decorations, childToken, childOffset);
+        childOffset += childToken.length;
+      }
+    }
+
     for (var i =0; i < tokens.length; i++) {
         token = tokens[i];
-
-        if (typeof token === 'string') {
-            offset += token.length;
-        } else {
-            tokenId = 'tok'+offset;
-            resultId = blockKey + '-' + tokenId;
-
-            this.highlighted[blockKey][tokenId] = token;
-
-            occupySlice(decorations, offset, offset + token.content.length, resultId);
-            offset += token.content.length;
-        }
+        processToken(decorations, token, offset);
+        offset += token.length;
     }
 
     return Immutable.List(decorations);
@@ -1819,7 +1823,7 @@ function defaultFilter(block) {
 */
 function defaultGetSyntax(block) {
     if (block.getData) {
-        return block.getData().syntax;
+        return block.getData().get('syntax');
     }
 
     return null;
@@ -3908,7 +3912,7 @@ var DraftEditorContents = function (_React$Component) {
         tree: editorState.getBlockTree(key)
       };
 
-      var configForType = blockRenderMap.get(blockType);
+      var configForType = blockRenderMap.get(blockType) || blockRenderMap.get('unstyled');
       var wrapperTemplate = configForType.wrapper;
 
       var Element = configForType.element || blockRenderMap.get('unstyled').element;
@@ -9866,8 +9870,6 @@ function insertFragmentIntoContentState(contentState, selectionState, fragment) 
       characterList: insertIntoList(chars, pastedBlock.getCharacterList(), targetOffset),
       data: pastedBlock.getData()
     });
-
-    blockMap = blockMap.set(targetKey, newBlock);
 
     finalKey = targetKey;
     finalOffset = targetOffset + pastedBlock.getText().length;
@@ -19752,12 +19754,10 @@ module.exports = warning;
 }).call(this,require('_process'))
 },{"./emptyFunction":150,"_process":181}],176:[function(require,module,exports){
 /**
- *  Copyright (c) 2014-2015, Facebook, Inc.
- *  All rights reserved.
+ * Copyright (c) 2014-present, Facebook, Inc.
  *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant
- *  of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 (function (global, factory) {
@@ -25532,7 +25532,7 @@ Prism.languages.javascript = Prism.languages.extend('clike', {
 	'keyword': /\b(as|async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally|for|from|function|get|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|set|static|super|switch|this|throw|try|typeof|var|void|while|with|yield)\b/,
 	'number': /\b-?(0[xX][\dA-Fa-f]+|0[bB][01]+|0[oO][0-7]+|\d*\.?\d+([Ee][+-]?\d+)?|NaN|Infinity)\b/,
 	// Allow for all non-ASCII characters (See http://stackoverflow.com/a/2008444)
-	'function': /[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*(?=\()/i,
+	'function': /[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*(?=\s*\()/i,
 	'operator': /-[-=]?|\+[+=]?|!=?=?|<<?=?|>>?>?=?|=(?:==?|>)?|&[&=]?|\|[|=]?|\*\*?=?|\/=?|~|\^=?|%=?|\?|\.{3}/
 });
 
@@ -25541,6 +25541,11 @@ Prism.languages.insertBefore('javascript', 'keyword', {
 		pattern: /(^|[^/])\/(?!\/)(\[[^\]\r\n]+]|\\.|[^/\\\[\r\n])+\/[gimyu]{0,5}(?=\s*($|[\r\n,.;})]))/,
 		lookbehind: true,
 		greedy: true
+	},
+	// This must be declared before keyword because we use "function" inside the look-forward
+	'function-variable': {
+		pattern: /[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*(?=\s*=\s*(?:function\b|(?:\([^()]*\)|[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*)\s*=>))/i,
+		alias: 'function'
 	}
 });
 
@@ -44709,7 +44714,7 @@ module.exports = function (str, n) {
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"_process":181}],341:[function(require,module,exports){
 /**
- * UAParser.js v0.7.14
+ * UAParser.js v0.7.17
  * Lightweight JavaScript-based User-Agent string parser
  * https://github.com/faisalman/ua-parser-js
  *
@@ -44726,7 +44731,7 @@ module.exports = function (str, n) {
     /////////////
 
 
-    var LIBVERSION  = '0.7.14',
+    var LIBVERSION  = '0.7.17',
         EMPTY       = '',
         UNKNOWN     = '?',
         FUNC_TYPE   = 'function',
@@ -44848,7 +44853,7 @@ module.exports = function (str, n) {
                 }
                 i += 2;
             }
-            //console.log(this);
+            // console.log(this);
             //return this;
         },
 
@@ -45002,7 +45007,7 @@ module.exports = function (str, n) {
             /;fbav\/([\w\.]+);/i                                                // Facebook App for iOS & Android
             ], [VERSION, [NAME, 'Facebook']], [
 
-            /(headlesschrome) ([\w\.]+)/i                                       // Chrome Headless
+            /headlesschrome(?:\/([\w\.]+)|\s)/i                                 // Chrome Headless
             ], [VERSION, [NAME, 'Chrome Headless']], [
 
             /\swv\).+(chrome)\/([\w\.]+)/i                                      // Chrome WebView
@@ -45035,6 +45040,9 @@ module.exports = function (str, n) {
 
             /version\/([\w\.]+).+?(mobile\s?safari|safari)/i                    // Safari & Safari Mobile
             ], [VERSION, NAME], [
+
+            /webkit.+?(gsa)\/([\w\.]+).+?(mobile\s?safari|safari)(\/[\w\.]+)/i  // Google Search Appliance on iOS
+            ], [[NAME, 'GSA'], VERSION], [
 
             /webkit.+?(mobile\s?safari|safari)(\/[\w\.]+)/i                     // Safari < 3.0
             ], [NAME, [VERSION, mapper.str, maps.browser.oldsafari.version]], [
@@ -45359,9 +45367,11 @@ module.exports = function (str, n) {
 
             /android.+(\w+)\s+build\/hm\1/i,                                    // Xiaomi Hongmi 'numeric' models
             /android.+(hm[\s\-_]*note?[\s_]*(?:\d\w)?)\s+build/i,               // Xiaomi Hongmi
-            /android.+(mi[\s\-_]*(?:one|one[\s_]plus|note lte)?[\s_]*(?:\d\w)?)\s+build/i    // Xiaomi Mi
+            /android.+(mi[\s\-_]*(?:one|one[\s_]plus|note lte)?[\s_]*(?:\d\w)?)\s+build/i,    // Xiaomi Mi
+            /android.+(redmi[\s\-_]*(?:note)?(?:[\s_]*[\w\s]+)?)\s+build/i      // Redmi Phones
             ], [[MODEL, /_/g, ' '], [VENDOR, 'Xiaomi'], [TYPE, MOBILE]], [
-
+            /android.+(mi[\s\-_]*(?:pad)?(?:[\s_]*[\w\s]+)?)\s+build/i          // Mi Pad tablets
+            ],[[MODEL, /_/g, ' '], [VENDOR, 'Xiaomi'], [TYPE, TABLET]], [
             /android.+;\s(m[1-5]\snote)\sbuild/i                                // Meizu Tablet
             ], [MODEL, [VENDOR, 'Meizu'], [TYPE, TABLET]], [
 
@@ -45563,7 +45573,7 @@ module.exports = function (str, n) {
             ], [NAME, VERSION],[
 
             /cfnetwork\/.+darwin/i,
-            /ip[honead]+(?:.*os\s([\w]+)*\slike\smac|;\sopera)/i                // iOS
+            /ip[honead]+(?:.*os\s([\w]+)\slike\smac|;\sopera)/i                 // iOS
             ], [[VERSION, /_/g, '.'], [NAME, 'iOS']], [
 
             /(mac\sos\sx)\s?([\w\s\.]+\w)*/i,
@@ -45584,7 +45594,7 @@ module.exports = function (str, n) {
     /////////////////
     // Constructor
     ////////////////
-
+    /*
     var Browser = function (name, version) {
         this[NAME] = name;
         this[VERSION] = version;
@@ -45599,7 +45609,7 @@ module.exports = function (str, n) {
     };
     var Engine = Browser;
     var OS = Browser;
-
+    */
     var UAParser = function (uastring, extensions) {
 
         if (typeof uastring === 'object') {
@@ -45613,30 +45623,35 @@ module.exports = function (str, n) {
 
         var ua = uastring || ((window && window.navigator && window.navigator.userAgent) ? window.navigator.userAgent : EMPTY);
         var rgxmap = extensions ? util.extend(regexes, extensions) : regexes;
-        var browser = new Browser();
-        var cpu = new CPU();
-        var device = new Device();
-        var engine = new Engine();
-        var os = new OS();
+        //var browser = new Browser();
+        //var cpu = new CPU();
+        //var device = new Device();
+        //var engine = new Engine();
+        //var os = new OS();
 
         this.getBrowser = function () {
+            var browser = { name: undefined, version: undefined };
             mapper.rgx.call(browser, ua, rgxmap.browser);
             browser.major = util.major(browser.version); // deprecated
             return browser;
         };
         this.getCPU = function () {
+            var cpu = { architecture: undefined };
             mapper.rgx.call(cpu, ua, rgxmap.cpu);
             return cpu;
         };
         this.getDevice = function () {
+            var device = { vendor: undefined, model: undefined, type: undefined };
             mapper.rgx.call(device, ua, rgxmap.device);
             return device;
         };
         this.getEngine = function () {
+            var engine = { name: undefined, version: undefined };
             mapper.rgx.call(engine, ua, rgxmap.engine);
             return engine;
         };
         this.getOS = function () {
+            var os = { name: undefined, version: undefined };
             mapper.rgx.call(os, ua, rgxmap.os);
             return os;
         };
@@ -45655,11 +45670,11 @@ module.exports = function (str, n) {
         };
         this.setUA = function (uastring) {
             ua = uastring;
-            browser = new Browser();
-            cpu = new CPU();
-            device = new Device();
-            engine = new Engine();
-            os = new OS();
+            //browser = new Browser();
+            //cpu = new CPU();
+            //device = new Device();
+            //engine = new Engine();
+            //os = new OS();
             return this;
         };
         return this;
@@ -45706,6 +45721,35 @@ module.exports = function (str, n) {
         if (typeof module !== UNDEF_TYPE && module.exports) {
             exports = module.exports = UAParser;
         }
+        // TODO: test!!!!!!!!
+        /*
+        if (require && require.main === module && process) {
+            // cli
+            var jsonize = function (arr) {
+                var res = [];
+                for (var i in arr) {
+                    res.push(new UAParser(arr[i]).getResult());
+                }
+                process.stdout.write(JSON.stringify(res, null, 2) + '\n');
+            };
+            if (process.stdin.isTTY) {
+                // via args
+                jsonize(process.argv.slice(2));
+            } else {
+                // via pipe
+                var str = '';
+                process.stdin.on('readable', function() {
+                    var read = process.stdin.read();
+                    if (read !== null) {
+                        str += read;
+                    }
+                });
+                process.stdin.on('end', function () {
+                    jsonize(str.replace(/\n$/, '').split('\n'));
+                });
+            }
+        }
+        */
         exports.UAParser = UAParser;
     } else {
         // requirejs env (optional)
