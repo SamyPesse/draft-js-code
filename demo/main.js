@@ -118,7 +118,7 @@ class PrismEditorExample extends React.Component {
       return;
     }
 
-    this.onChange(CodeUtils.handleTab(e, editorState));
+    this.onChange(CodeUtils.onTab(e, editorState));
   }
 
   _onReturn(e) {
