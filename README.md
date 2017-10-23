@@ -33,7 +33,7 @@ Returns true if user is editing a code block. You should call this method to enc
 
 Handle key command for code blocks, returns a new `EditorState` or `null`.
 
-##### `CodeUtils.handleTab(e, editorState)`
+##### `CodeUtils.onTab(e, editorState)`
 
 Handle user pressing tab, to insert indentation, it returns a new `EditorState`.
 
@@ -99,11 +99,11 @@ class Editor extends React.Component {
     return 'handled';
   }
 
-  handleTab = (evt) => {
+  onTab = (evt) => {
     const { editorState } = this.state;
     if (!CodeUtils.hasSelectionInBlock(editorState)) return 'not-handled';
 
-    this.onChange(CodeUtils.handleTab(evt, editorState));
+    this.onChange(CodeUtils.onTab(evt, editorState));
     return 'handled';
   }
 
@@ -115,7 +115,7 @@ class Editor extends React.Component {
         keyBindingFn={this.keyBindingFn}
         handleKeyCommand={this.handleKeyCommand}
         handleReturn={this.handleReturn}
-        onTab={this.handleTab}
+        onTab={this.onTab}
       />
     );
   }
