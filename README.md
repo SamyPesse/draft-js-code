@@ -16,7 +16,6 @@ Demo: [samypesse.github.io/draft-js-code/](http://samypesse.github.io/draft-js-c
 - [x] Indent with <kbd>TAB</kbd>
 - [x] Insert new line with correct indentation with <kbd>ENTER</kbd>
 - [x] Remove indentation with <kbd>DELETE</kbd>
-- [x] Split the code block with <kbd>Command/Control + Enter</kbd>
 
 ### Installation
 
