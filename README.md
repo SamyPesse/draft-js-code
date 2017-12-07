@@ -105,8 +105,13 @@ class Editor extends React.Component {
     const { editorState } = this.state;
     if (!CodeUtils.hasSelectionInBlock(editorState)) return 'not-handled';
 
-    this.onChange(CodeUtils.onTab(evt, editorState));
-    return 'handled';
+    const newState = CodeUtils.onTab(evt, editorState);
+		if (newState) {
+			this.handleChange(newState);
+			return 'handled';
+		}
+
+    return 'not-handled';
   }
 
   render() {
