@@ -70,7 +70,7 @@ class Editor extends React.Component {
     let newState;
 
     if (CodeUtils.hasSelectionInBlock(editorState)) {
-      newState = CodeUtils.handleKeyCommand(editorState, command);
+      newState = CodeUtils.handleKeyCommand(editorState, command, 2);
     }
 
     if (!newState) {
@@ -105,7 +105,7 @@ class Editor extends React.Component {
     const { editorState } = this.state;
     if (!CodeUtils.hasSelectionInBlock(editorState)) return 'not-handled';
 
-    this.onChange(CodeUtils.onTab(evt, editorState));
+    this.onChange(CodeUtils.onTab(evt, editorState, 2));
     return 'handled';
   }
 
