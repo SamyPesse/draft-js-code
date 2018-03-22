@@ -16,7 +16,7 @@ Demo: [samypesse.github.io/draft-js-code/](http://samypesse.github.io/draft-js-c
 - [x] Indent with <kbd>TAB</kbd>
 - [x] Insert new line with correct indentation with <kbd>ENTER</kbd>
 - [x] Remove indentation with <kbd>DELETE</kbd>
-- [ ] Remove indentation with <kdb>SHIFT+TAB</kbd> ([#6](https://github.com/SamyPesse/draft-js-code/issues/6))
+- [x] Remove indentation with <kdb>SHIFT+TAB</kbd> ([#6](https://github.com/SamyPesse/draft-js-code/issues/6))
 - [ ] Handle input of pair characters like `()`, `[]`, `{}`, `""`, etc. ([#3](https://github.com/SamyPesse/draft-js-code/issues/3))
 
 ### Installation
@@ -33,15 +33,19 @@ Returns true if user is editing a code block. You should call this method to enc
 
 ##### `CodeUtils.handleKeyCommand(editorState, command)`
 
-Handle key command for code blocks, returns a new `EditorState` or `null`.
+Handles the key command for code blocks, returns a new `EditorState` or `null`.
 
-##### `CodeUtils.onTab(e, editorState)`
+##### `CodeUtils.onTab(e, editorState, tabSize)`
 
-Handle user pressing tab, to insert indentation, it returns a new `EditorState`.
+Handles the user pressing `Tab`, to insert indentation, it returns a new `EditorState`.
+
+The `tabSize` parameter is optional and defaults to four (4) spaces.
+
+Also handles the user pressing `Shift+Tab` to reduce indentation if possible.
 
 ##### `CodeUtils.handleReturn(e, editorState)`
 
-Handle user pressing return, to insert a new line inside the code block, it returns a new `EditorState`.
+Handles the user pressing `Return`, to insert a new line inside the code block, it returns a new `EditorState`.
 
 
 ### Usage
